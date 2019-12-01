@@ -1,4 +1,8 @@
-﻿using marti_tech_demo.Controllers;
+﻿using System;
+using System.IO;
+using System.Reflection;
+using marti_tech_demo.Controllers;
+using marti_tech_demo.Filters;
 using marti_tech_demo.Helper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,10 +30,16 @@ namespace marti_tech_demo
             services.AddScoped<CsvParser>();
             services.AddScoped<XmlParser>();
 
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "Marti Tech Demo", Version = "v1" });
                 c.DescribeAllEnumsAsStrings();
+                c.OperationFilter<AddRequiredHeaderParameter>();
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
             });
         }
 
@@ -46,6 +56,9 @@ namespace marti_tech_demo
                 app.UseHsts();
             }
 
+            app.UseMiddleware<TokenMiddleware>();
+
+
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 
@@ -57,7 +70,12 @@ namespace marti_tech_demo
             });
 
             app.UseHttpsRedirection();
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(name: "default", template: "swagger");
+            });
         }
+
+
     }
 }

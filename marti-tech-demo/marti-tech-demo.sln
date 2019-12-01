@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.852
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "marti-tech-demo", "marti-tech-demo\marti-tech-demo.csproj", "{BD0CBD17-4E16-44DC-884B-DE53AB81A1DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "marti-tech-demo", "marti-tech-demo\marti-tech-demo.csproj", "{BD0CBD17-4E16-44DC-884B-DE53AB81A1DA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{5A943E17-0904-4DC8-8F06-FCCF2A7DE105}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{BD0CBD17-4E16-44DC-884B-DE53AB81A1DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD0CBD17-4E16-44DC-884B-DE53AB81A1DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD0CBD17-4E16-44DC-884B-DE53AB81A1DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A943E17-0904-4DC8-8F06-FCCF2A7DE105}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A943E17-0904-4DC8-8F06-FCCF2A7DE105}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A943E17-0904-4DC8-8F06-FCCF2A7DE105}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A943E17-0904-4DC8-8F06-FCCF2A7DE105}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

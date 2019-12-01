@@ -1,4 +1,5 @@
 ﻿using marti_tech_demo.Helper;
+using marti_tech_demo.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -6,8 +7,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml;
-using System.Xml.Serialization;
+using System.Linq.Dynamic.Core;
 
 namespace marti_tech_demo.Controllers
 {
@@ -26,13 +26,23 @@ namespace marti_tech_demo.Controllers
         }
 
         // GET api/values
+        /// <summary>
+        /// Diğer api'ların kullanılabilmesi için tek seferlik token alınmalıdır. Bir token süresi 360 dk'dır ve appsettings.json'dan değiştirilebilir.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        [Route("/api/get-token")]
+        [Route("/swagger/get-token")]
         public IActionResult GetToken()
         {
             return this.Ok(_tokenProvider.TokenGenerator());
         }
 
+        /// <summary>
+        /// Uygulama veri dosyalarını yüklemeye yarar. XML ve CSV destekler.
+        /// </summary>
+        /// <param name="file">Dosya</param>
+        /// <param name="extension">Dosya tipi</param>
+        /// <returns>String sonuç döndürür</returns>
         [HttpPost]
         [Route("/api/upload-data-file")]
         public IActionResult UploadFile(IFormFile file, FileType extension)
@@ -47,119 +57,54 @@ namespace marti_tech_demo.Controllers
                 : (_serviceProvider.GetService(typeof(XmlParser)) as XmlParser)?.ParseFile(file)
                 .ToList();
 
-            ModelListGenerator(parsedList);
+            ModelList = new ConcurrentBag<City>(parsedList);
 
             return Ok("File Uploaded");
         }
 
+        /// <summary>
+        /// Uygulama içerisine atılan veriyi filtreler ve sıralar. Filtreleme opsiyonu verilen string bilgisini uygulamadaki verilerin tamamının verilerinde arar. Filtreleme için 4 farklı tip string key verilerek yapılabilir. Dosya tipi seçilmezse JSON string döndürür. Seçilen dosya tipine göre fileresult döndürür.
+        /// </summary>
+        /// <param name="query">String arama sorgusu</param>
+        /// <param name="sort">String sort key(CityName,CityCode,District,Zip), value (true asc, false desc)</param>
+        /// <param name="type">File result tipi, boş bırakılırsa JsonResult döndürür.</param>
+        /// <returns></returns>
         [HttpPost]
         [Route("/api/query-and-sort")]
-        public IActionResult QueryAndSort(string query, string sort)
+        public IActionResult QueryAndSort(string query, Dictionary<string, bool> sort, FileType? type)
         {
             var resultList = ModelList.ToList().ConvertToAppCsvData();
 
             if (!string.IsNullOrEmpty(query))
             {
                 //CsvReadModelExtensions.AreAllPropertiesNotNullForAllItems(resultList.First(), query);
-                resultList = resultList.Where(t => CsvReadModelExtensions.AreAllPropertiesNotNullForAllItems(t, query)).ToList();
+                resultList = resultList.Where(t => CsvReadModelExtensions.SearchAllPropertyValues(t, query)).ToList();
             }
 
-            if (!string.IsNullOrEmpty(sort))
+            if (sort != null && sort.ToList().Any())
             {
-                System.Reflection.PropertyInfo prop = typeof(CsvReadModel).GetProperty(sort);
+                var queryParams = sort.Select(t => t.Value ? $"{t.Key} ascending" : $"{t.Key} descending");
 
-                resultList = resultList.OrderBy(x => prop.GetValue(x, null)).ToList();
+                resultList = resultList.AsQueryable().OrderBy(string.Join(",", queryParams)).ToList();
+            }
+
+
+            if (type != null)
+            {
+                switch (type)
+                {
+                    case FileType.CSV:
+                        return File(resultList.GetCsvStream($"csv-result-{Guid.NewGuid().ToString("n").ToLower()}.csv"),
+                            "text/csv");
+                    case FileType.XML:
+                        return File(resultList.GetXmlStream($"xml-result-{Guid.NewGuid().ToString("n").ToLower()}.csv"),
+                            "text/xml");
+                }
             }
 
             return Ok(resultList.ConvertToAppDataModel());
         }
 
-        private void ModelListGenerator(IEnumerable<City> list)
-        {
-            ModelList = new ConcurrentBag<City>(list);
-        }
+
     }
-
-    public enum FileType
-    {
-        [ExtensionType("csv")]
-        CSV,
-        [ExtensionType("xml")]
-        XML
-    }
-
-
-    public class ExtensionTypeAttribute : Attribute
-    {
-        public string ExtensionType { get; set; }
-        public ExtensionTypeAttribute(string csv)
-        {
-            ExtensionType = csv;
-        }
-    }
-
-    public static class EnumHelper
-    {
-        /// <summary>
-        /// Gets an attribute on an enum field value
-        /// </summary>
-        /// <typeparam name="T">The type of the attribute you want to retrieve</typeparam>
-        /// <param name="enumVal">The enum value</param>
-        /// <returns>The attribute of type T that exists on the enum value</returns>
-        /// <example>string desc = myEnumVariable.GetAttributeOfType<DescriptionAttribute>().Description;</example>
-        public static TAttribute GetAttribute<TAttribute>(this Enum value)
-            where TAttribute : Attribute
-        {
-            var enumType = value.GetType();
-            var name = Enum.GetName(enumType, value);
-            return enumType.GetField(name).GetCustomAttributes(false).OfType<TAttribute>().SingleOrDefault();
-        }
-    }
-
-    public interface IFileParser
-    {
-        IEnumerable<City> ParseFile(IFormFile file);
-    }
-
-    public class XmlParser : IFileParser
-    {
-        public IEnumerable<City> ParseFile(IFormFile file)
-        {
-            XmlSerializer serializer = new XmlSerializer(typeof(AddressInfo));
-            using (Stream stream = file.OpenReadStream())
-            {
-                using (XmlReader reader = XmlReader.Create(stream))
-                {
-                    return ((AddressInfo)serializer.Deserialize(reader)).City;
-                }
-            }
-        }
-    }
-
-    public class CsvParser : IFileParser
-    {
-        public IEnumerable<City> ParseFile(IFormFile file)
-        {
-            List<CsvReadModel> list = new List<CsvReadModel>();
-            using (var reader = new StreamReader(file.OpenReadStream()))
-            {
-                reader.ReadLine();
-                while (reader.Peek() >= 0)
-                {
-                    var lineData = reader.ReadLine()?.Split(",");
-                    list.Add(new CsvReadModel()
-                    {
-                        CityName = lineData[0],
-                        CityCode = Convert.ToInt32(lineData[1]),
-                        DistrictName = lineData[2],
-                        ZipCode = Convert.ToInt32(lineData[3])
-                    });
-                }
-            }
-
-            return list.ConvertToAppDataModel();
-        }
-    }
-
-
 }

@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>marti-tech-demo</name>
+    </assembly>
+    <members>
+        <member name="M:marti_tech_demo.Controllers.ValuesController.GetToken">
+            <summary>
+            Diğer api'ların kullanılabilmesi için tek seferlik token alınmalıdır. Bir token süresi 360 dk'dır ve appsettings.json'dan değiştirilebilir.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:marti_tech_demo.Controllers.ValuesController.UploadFile(Microsoft.AspNetCore.Http.IFormFile,marti_tech_demo.Helper.FileType)">
+            <summary>
+            Uygulama veri dosyalarını yüklemeye yarar. XML ve CSV destekler.
+            </summary>
+            <param name="file">Dosya</param>
+            <param name="extension">Dosya tipi</param>
+            <returns>String sonuç döndürür</returns>
+        </member>
+        <member name="M:marti_tech_demo.Controllers.ValuesController.QueryAndSort(System.String,System.Collections.Generic.Dictionary{System.String,System.Boolean},System.Nullable{marti_tech_demo.Helper.FileType})">
+            <summary>
+            Uygulama içerisine atılan veriyi filtreler ve sıralar. Filtreleme opsiyonu verilen string bilgisini uygulamadaki verilerin tamamının verilerinde arar. Filtreleme için 4 farklı tip string key verilerek yapılabilir. Dosya tipi seçilmezse JSON string döndürür. Seçilen dosya tipine göre fileresult döndürür.
+            </summary>
+            <param name="query">String arama sorgusu</param>
+            <param name="sort">String sort key(CityName,CityCode,District,Zip), value (true asc, false desc)</param>
+            <param name="type">File result tipi, boş bırakılırsa JsonResult döndürür.</param>
+            <returns></returns>
+        </member>
+        <member name="M:marti_tech_demo.Filters.TokenMiddleware.Invoke(Microsoft.AspNetCore.Http.HttpContext,marti_tech_demo.Helper.ITokenProvider)">
+            <summary>
+            Gelen request'i yakalar, ilgili header'ı kontrol eder. Geçerliyse 200, değilse 401 döndürür.
+            </summary>
+            <param name="httpContext">Request</param>
+            <param name="tokenValidateHelper">Token validate işlemlerini içerir</param>
+            <returns>Request</returns>
+        </member>
+        <member name="T:marti_tech_demo.Helper.AddRequiredHeaderParameter">
+            <summary>
+            Swagger header parametresi için konfigürasyon.
+            </summary>
+        </member>
+        <member name="T:marti_tech_demo.Helper.CsvParser">
+            <summary>
+            Upload edilen dosyayı uygulama data tipine çevirir.
+            </summary>
+        </member>
+        <member name="T:marti_tech_demo.Helper.CsvReadModelExtensions">
+            <summary>
+            Verileri birbiri arasında çevirmek için gereken yardımcı metodlar
+            </summary>
+        </member>
+        <member name="M:marti_tech_demo.Helper.CsvReadModelExtensions.ConvertToAppDataModel(System.Collections.Generic.List{marti_tech_demo.Models.CsvReadModel})">
+            <summary>
+            CSV upload modelini uygulama veri modeline çevirir.
+            </summary>
+            <param name="list">Upload edilip parse edilmiş csv verisi</param>
+            <returns>Uygulama veri listesi</returns>
+        </member>
+        <member name="M:marti_tech_demo.Helper.CsvReadModelExtensions.ConvertToAppCsvData(System.Collections.Generic.List{marti_tech_demo.Models.City})">
+            <summary>
+            Uygulama verisini CSV data modeline dönüştürür. 
+            </summary>
+            <param name="list">Uygulama veri modeli</param>
+            <returns>CSV data model listesi döndürür.</returns>
+        </member>
+        <member name="M:marti_tech_demo.Helper.CsvReadModelExtensions.SearchAllPropertyValues(System.Object,System.String)">
+            <summary>
+            Tüm veri içerisinde arama algoritması
+            </summary>
+            <param name="obj">İçinde değer aranacak obje</param>
+            <param name="query">Arama sorgusu</param>
+            <returns>Eğer aranan değer nesne içinde bir property değerinde var ise true döndürür.s</returns>
+        </member>
+        <member name="M:marti_tech_demo.Helper.CsvReadModelExtensions.GetCsvStream(System.Collections.Generic.List{marti_tech_demo.Models.CsvReadModel},System.String)">
+            <summary>
+            CSV dosya verisini oluşturur.
+            </summary>
+            <param name="list">CSV data model listesi</param>
+            <param name="fileName">Dosya adı</param>
+            <returns>Filestream döndürür</returns>
+        </member>
+        <member name="M:marti_tech_demo.Helper.CsvReadModelExtensions.GetXmlStream(System.Collections.Generic.List{marti_tech_demo.Models.CsvReadModel},System.String)">
+            <summary>
+            XML Dosya verisi döndürür.
+            </summary>
+            <param name="list">CSV data model verisi</param>
+            <param name="fileName">Dosya adı</param>
+            <returns>Filestream döndürür</returns>
+        </member>
+        <member name="M:marti_tech_demo.Helper.EnumHelper.GetAttribute``1(System.Enum)">
+            <summary>
+            Enum string verisini döndürür.
+            </summary>
+            <typeparam name="TAttribute">Enum tipi</typeparam>
+            <param name="value">Enum değeri</param>
+            <returns>Enum string açıklaması</returns>
+        </member>
+        <member name="T:marti_tech_demo.Helper.ExtensionTypeAttribute">
+            <summary>
+            Enum tiplerinin dosya uzantılarını attr olarak vermek için kullanılır.
+            </summary>
+        </member>
+        <member name="T:marti_tech_demo.Helper.FileType">
+            <summary>
+            Dosya tipi seçenekleri
+            </summary>
+        </member>
+        <member name="T:marti_tech_demo.Helper.IFileParser">
+            <summary>
+            Dosya içindeki verileri veri modeline çevirmek için gereken metodları içerir.
+            </summary>
+        </member>
+        <member name="T:marti_tech_demo.Helper.ITokenProvider">
+            <summary>
+            Token validasyonu için gereken metodları içerir.
+            </summary>
+        </member>
+        <member name="T:marti_tech_demo.Helper.TokenProvider">
+            <summary>
+            Token veri sağlayıcısı
+            </summary>
+        </member>
+        <member name="M:marti_tech_demo.Helper.TokenProvider.TokenValidator(System.String)">
+            <summary>
+            Basit bir token mekanizması için oluşturulup dosyaya yazılan tokenları validate eder.
+            </summary>
+        </member>
+        <member name="M:marti_tech_demo.Helper.TokenProvider.TokenGenerator">
+            <summary>
+            Token oluşturur ve dosyaya yazar.
+            </summary>
+            <returns>token döndürür.</returns>
+        </member>
+        <member name="M:marti_tech_demo.Helper.TokenProvider.LoadTokens">
+            <summary>
+            Yazılan tokenları yükler.
+            </summary>
+            <returns>Token listesi</returns>
+        </member>
+        <member name="M:marti_tech_demo.Helper.TokenProvider.WriteTokens">
+            <summary>
+            Token listesini diske yazar.
+            </summary>
+        </member>
+        <member name="T:marti_tech_demo.Helper.XmlParser">
+            <summary>
+            XML dosyasını parse işlemleri.
+            </summary>
+        </member>
+        <member name="M:marti_tech_demo.Helper.XmlParser.ParseFile(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            XML dosyasını uygulama veri modeline dönüştürür.
+            </summary>
+        </member>
+        <member name="T:marti_tech_demo.Models.AddressInfo">
+            <summary>
+            XML dosyası ana Node'u, serialize-deserialize için kullanılır.
+            </summary>
+        </member>
+        <member name="T:marti_tech_demo.Models.City">
+            <summary>
+            XML parse için kullanılır. Aynı zamanda uygulama ana veri modeli olarak da kullanılır.
+            </summary>
+        </member>
+        <member name="T:marti_tech_demo.Models.CsvReadModel">
+            <summary>
+            CSV parse edildikten sonra oluşan veri modeli. Aynı zamanda uygulama içindeki filter mekanizmasında da kullanılır.
+            </summary>
+        </member>
+        <member name="T:marti_tech_demo.Models.District">
+            <summary>
+            XML district parse verisi.
+            </summary>
+        </member>
+        <member name="T:marti_tech_demo.Models.TokenObject">
+            <summary>
+            Token veri modeli.
+            </summary>
+        </member>
+        <member name="T:marti_tech_demo.Models.Zip">
+            <summary>
+            Xml zip parse verisi data modeli.
+            </summary>
+        </member>
+    </members>
+</doc>
