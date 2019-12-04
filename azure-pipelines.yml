@@ -13,7 +13,6 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  projectName:'~/marti-tech-demo/marti-tech-demo/marti-tech-demo/marti-tech-demo.csproj'
 
 steps:
 - task: NuGetToolInstaller@1
@@ -33,7 +32,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: True
-    arguments: '$(projectName) --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: True
 
 
