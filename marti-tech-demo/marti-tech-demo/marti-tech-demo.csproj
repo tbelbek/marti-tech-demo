@@ -24,4 +24,10 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="marti-tech-demo.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
