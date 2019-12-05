@@ -71,7 +71,7 @@ namespace marti_tech_demo
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/v1/swagger.json", "My API V1");
+                c.SwaggerEndpoint("/marti-tech-demo/swagger/v1/swagger.json", "My API V1");
             });
 
             app.UseHttpsRedirection();
