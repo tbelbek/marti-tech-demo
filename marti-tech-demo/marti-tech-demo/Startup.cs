@@ -41,7 +41,7 @@ namespace marti_tech_demo
                 c.IncludeXmlComments(xmlPath);
             });
 
-            services.Configure<IISServerOptions>(options => 
+            services.Configure<IISServerOptions>(options =>
             {
                 options.AutomaticAuthentication = false;
             });
@@ -52,7 +52,7 @@ namespace marti_tech_demo
         {
             if (env.IsDevelopment())
             {
-            app.UseDeveloperExceptionPage();
+                app.UseDeveloperExceptionPage();
 
             }
             else
