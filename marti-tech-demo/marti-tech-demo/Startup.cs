@@ -50,9 +50,9 @@ namespace marti_tech_demo
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseDeveloperExceptionPage();
             if (env.IsDevelopment())
             {
+            app.UseDeveloperExceptionPage();
 
             }
             else
@@ -71,7 +71,7 @@ namespace marti_tech_demo
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.SwaggerEndpoint("/v1/swagger.json", "My API V1");
             });
 
             app.UseHttpsRedirection();
